@@ -1,22 +1,17 @@
-import { Construct } from 'constructs';
-import { App, TerraformStack, RemoteBackend } from 'cdktf';
+import { ContainerCluster, GoogleProvider} from "@cdktf/provider-google";
+import { App, TerraformStack } from "cdktf";
+import { Construct } from "constructs";
 
-class MyStack extends TerraformStack {
-  constructor(scope: Construct, name: string) {
-    super(scope, name);
+const app = new App()
 
-    // define resources here
-
+class GCloudStack extends TerraformStack {
+  constructor (scope: Construct) {
+    super(scope, `stack`);
+    new GoogleProvider(this, "google", {zone: "europe-north1-a"})
+    new ContainerCluster(this, `cluster`, { name: `cluster`, project: "dschmidt-cdk-test", initialNodeCount: 1})
   }
 }
 
-const app = new App();
-const stack = new MyStack(app, 'cdktf-issue-688');
-new RemoteBackend(stack, {
-  hostname: 'app.terraform.io',
-  organization: 'cdktf',
-  workspaces: {
-    name: 'cdktf-issue-688'
-  }
-});
-app.synth();
+new GCloudStack(app,)
+
+app.synth()
